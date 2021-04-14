@@ -26,6 +26,7 @@ namespace Contratos.Models
 
         public ICollection<Prestacao> Prestacoes { get; set; }
 
+
     }
 
 

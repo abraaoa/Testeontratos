@@ -1,19 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Contratos.Models;
 using Contratos.Data;
 using System.Linq;
+using Microsoft.Extensions.Caching.Memory;
+using System;
 
-namespace Prestacaos.Controllers
+namespace Prestacoes.Controllers
 {
-    [Route("prestacoes")]
+    [Route("v1/prestacoes")]
     [ApiController]
     public class PrestacaoController : ControllerBase
     {
-
 
         [HttpGet]
         [Route("contrato/{id:long}")]
@@ -30,22 +30,33 @@ namespace Prestacaos.Controllers
 
 
 
+
         [HttpPost]
-        [Route("")]
-        public async Task<ActionResult<Prestacao>> Post([FromServices] DataContext context, [FromBody] Prestacao model)
+        [Route("{id:long}/baixar")]
+        public async Task<ActionResult<Prestacao>> Baixar([FromServices] DataContext context, [FromBody] string dataPagamento, long id)
         {
 
-            if (ModelState.IsValid && model.Id == 0)
+            DateTime _dataPagamento;
+            if (!DateTime.TryParse(dataPagamento, out _dataPagamento))
             {
-                context.Prestacoes_Contrato.Add(model);
-                await context.SaveChangesAsync();
-                return model;
-            }
-            else
-            {
-                return BadRequest(ModelState);
+                return BadRequest();
             }
 
+            var Prestacao = await context.Prestacoes_Contrato
+            .AsNoTracking()
+            .FirstOrDefaultAsync(Prestacao => Prestacao.Id == id);
+            if (Prestacao == null)
+            {
+                return NotFound();
+            }
+            Prestacao.DataPagamento = _dataPagamento;
+            context.Prestacoes_Contrato.Update(Prestacao);
+
+            await context.SaveChangesAsync();
+
+            return Ok(Prestacao);
         }
+
+
     }
 }
