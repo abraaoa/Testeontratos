@@ -74,7 +74,7 @@ namespace Contratos_Test
         [Fact]
         public async Task Test3_ConsultarPrestacoes()
         {
-            Thread.Sleep(10000);
+
             ActionResult<List<Prestacao>> result = await prestacaoController.GetByContratoId(context, 1);
             Assert.IsType<List<Prestacao>>(result.Value);
             Assert.Equal(3, result.Value.Count);
