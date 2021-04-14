@@ -26,7 +26,7 @@ namespace Contratos.Controllers
 
         [HttpGet]
         [Route("")]
-        public async Task<ActionResult<List<Contrato>>> GetCache([FromServices] DataContext context)
+        public async Task<ActionResult<List<Contrato>>> Get([FromServices] DataContext context)
         {
             string MyKey = "Contratos";
             if (_featureManager != null && await _featureManager.IsEnabledAsync(AppFeatureFlags.CacheAtivo))
@@ -102,7 +102,14 @@ namespace Contratos.Controllers
             {
                 context.Contratos.Add(model);
                 long valorPrestacoes = model.ValorFianciado / model.QuantidadeParcelas;
-                DateTime dataProximaPrestacao = model.DataContratacao.AddDays(30);
+                DateTime dataProximaPrestacao;
+                if (model.DataContratacao == DateTime.MinValue) {
+                    dataProximaPrestacao = DateTime.Now.AddDays(30);
+                }
+                else {
+                    dataProximaPrestacao = model.DataContratacao.AddDays(30);
+                }
+                
                 for (int i = 1; i <= model.QuantidadeParcelas; i++)
                 {
                     Prestacao p = new Prestacao();
@@ -144,6 +151,12 @@ namespace Contratos.Controllers
                 }
                 context.Contratos.Remove(contrato);
                 await context.SaveChangesAsync();
+                //exclui do cache
+                string MyKey = "Contrato_" + id;
+                if (_cache.TryGetValue(MyKey, out Contrato cacheEntry))
+                {
+                    _cache.Remove(MyKey);
+                }
                 return NoContent();
             }
             else
