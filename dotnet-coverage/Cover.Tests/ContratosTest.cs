@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Threading;
 
-namespace Contratos_Test
+namespace Contratos.Contratos_Test
 {
     [Collection("Contratos_Serial")]
     public class ContratosTest
