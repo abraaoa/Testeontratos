@@ -151,7 +151,7 @@ namespace Contratos.Controllers
                 }
                 context.Contratos.Remove(contrato);
                 await context.SaveChangesAsync();
-                //exclui do cache
+                //exclui do cache de consulta do contrato
                 string MyKey = "Contrato_" + id;
                 if (_cache.TryGetValue(MyKey, out Contrato cacheEntry))
                 {
